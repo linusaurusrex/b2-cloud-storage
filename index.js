@@ -479,6 +479,32 @@ const b2CloudStorage = class {
 	}
 
 	/**
+	 * `b2_copy_file` Copies a file without needing to upload it again. You can specify new metadata and auto-detect the mimetype.
+	 * @param {Object} data Message Body Parameters.
+	 * @param {String} data.sourceFileId The ID of the source file being copied.
+	 * @param {String} [data.destinationBucketId] The ID of the bucket where the copied file will be stored. If this is not set, the copied file will be added to the same bucket as the source file.
+	 * @param {String} fileName The name of the new file being created.
+	 * @param {String} [range] The range of bytes to copy. If not provided, the whole source file will be copied.
+	 * @param {String} [contentType] Content/mimetype for file download. Can be omitted to auto-detect or copy from source file
+	 * @param {Object} [fileInfo] File info metadata for the file.
+	 * @param {Function} [callback]
+	 */
+	copyFile(data, callback) {
+		data.metadataDirective = 'COPY';
+		if(data.fileInfo || data.contentType){
+			data.metadataDirective = 'REPLACE';
+		}
+		if(data.fileInfo && !data.contentType) {
+			data.contentType = 'b2/x-auto';
+		}
+		return this.request({
+			url: 'b2_copy_file',
+			method: 'POST',
+			json: data
+		}, callback);
+	}
+
+	/**
 	 * `b2_hide_file` Hides a file so that downloading by name will not find the file, but previous versions of the file are still stored. See File Versions about what it means to hide a file.
 	 * @param {Object} data Message Body Parameters.
 	 * @param {String} data.bucketId The bucket containing the file to hide.
